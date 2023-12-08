@@ -32,14 +32,14 @@ pcontainer = POINTER TO ARRAY OF AObject;
         RETURN l;
     END Create;
 
-    PROCEDURE Resize* (l : DArray);
+    PROCEDURE Resize (l : DArray);
     VAR newSize : INTEGER;
         newContainer : pcontainer;
         i : INTEGER;
     BEGIN
         newSize := l.capacity * 2;
         NEW(newContainer, newSize);
-        FOR i := 0 TO l.numberOfElements - 1 DO
+        FOR i := 0 TO l.numberOfElements - 1 BY 1 DO
             newContainer[i] := l.container[i];
         END;
         l.container := newContainer;
@@ -49,7 +49,7 @@ pcontainer = POINTER TO ARRAY OF AObject;
     PROCEDURE Add* (l : DArray; newElement : AObject);
     BEGIN
         IF l.numberOfElements = l.capacity THEN
-        l.Resize(l);
+          Resize(l);
         END;
         l.container[l.numberOfElements] := newElement;
         INC(l.numberOfElements);
@@ -83,11 +83,16 @@ pcontainer = POINTER TO ARRAY OF AObject;
     VAR oldObject : AObject;
                 i : INTEGER;
     BEGIN
+(*		IF index >= l.numberOfElements THEN
+		  l.container[capacity+1] := NIL;
+		END; *)
+
         oldObject := l.container[index];
-        FOR i := index TO l.numberOfElements-1 BY 1 DO
+        FOR i := index TO l.numberOfElements-2 BY 1 DO
             l.container[i] := l.container[i+1];
         END;
         l.container[l.numberOfElements-1] := NIL;
+		DEC(l.numberOfElements);
 		RETURN oldObject;
     END Delete;
 
