@@ -46,6 +46,11 @@ pcontainer = POINTER TO ARRAY OF AObject;
         l.capacity := newSize;
     END Resize;
 
+    PROCEDURE Get* (l : DArray; index : INTEGER) : AObject;
+    BEGIN
+        RETURN l.container[index];
+    END Get;
+
     PROCEDURE Add* (l : DArray; newElement : AObject);
     BEGIN
         IF l.numberOfElements = l.capacity THEN
