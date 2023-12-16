@@ -47,9 +47,8 @@ export ADDRESS *DynamicArray_DArrayDesc__typ;
 export void DynamicArray_Add (DynamicArray_DArray l, DynamicArray_AObject newElement);
 export DynamicArray_DArray DynamicArray_Create (INT16 Capacity);
 export DynamicArray_AObject DynamicArray_Delete (DynamicArray_DArray l, INT16 index);
-export DynamicArray_AObject DynamicArray_Get (DynamicArray_DArray l, INT16 index);
 export void DynamicArray_Insert (DynamicArray_DArray l, INT16 index, DynamicArray_AObject newElement);
-export void DynamicArray_Resize (DynamicArray_DArray l);
+static void DynamicArray_Resize (DynamicArray_DArray l);
 export DynamicArray_AObject DynamicArray_SetAt (DynamicArray_DArray l, INT16 index, DynamicArray_AObject newElement);
 
 
@@ -64,16 +63,16 @@ DynamicArray_DArray DynamicArray_Create (INT16 Capacity)
 	return l;
 }
 
-void DynamicArray_Resize (DynamicArray_DArray l)
+static void DynamicArray_Resize (DynamicArray_DArray l)
 {
 	INT16 newSize;
 	DynamicArray_pcontainer newContainer = NIL;
-	INT16 i, _for__9;
+	INT16 i, _for__8;
 	newSize = __ASHL(l->capacity, 1);
 	newContainer = __NEWARR(POINTER__typ, 8, 8, 1, 1, ((ADDRESS)(newSize)));
-	_for__9 = l->numberOfElements - 1;
+	_for__8 = l->numberOfElements - 1;
 	i = 0;
-	while (i <= _for__9) {
+	while (i <= _for__8) {
 		(newContainer->data)[__X(i, newContainer->len[0])] = (l->container->data)[__X(i, l->container->len[0])];
 		i += 1;
 	}
@@ -81,15 +80,10 @@ void DynamicArray_Resize (DynamicArray_DArray l)
 	l->capacity = newSize;
 }
 
-DynamicArray_AObject DynamicArray_Get (DynamicArray_DArray l, INT16 index)
-{
-	return (l->container->data)[__X(index, l->container->len[0])];
-}
-
 void DynamicArray_Add (DynamicArray_DArray l, DynamicArray_AObject newElement)
 {
 	if (l->numberOfElements == l->capacity) {
-		(*l->Resize)(l);
+		DynamicArray_Resize(l);
 	}
 	(l->container->data)[__X(l->numberOfElements, l->container->len[0])] = newElement;
 	l->numberOfElements += 1;
@@ -97,16 +91,16 @@ void DynamicArray_Add (DynamicArray_DArray l, DynamicArray_AObject newElement)
 
 void DynamicArray_Insert (DynamicArray_DArray l, INT16 index, DynamicArray_AObject newElement)
 {
-	INT16 i, _for__7;
+	INT16 i, _for__6;
 	if (index > l->numberOfElements) {
 		(l->container->data)[__X(l->capacity + 1, l->container->len[0])] = newElement;
 	}
 	if (l->numberOfElements == l->capacity) {
 		(*l->Resize)(l);
 	}
-	_for__7 = index + 1;
+	_for__6 = index + 1;
 	i = l->numberOfElements;
-	while (i >= _for__7) {
+	while (i >= _for__6) {
 		(l->container->data)[__X(i, l->container->len[0])] = (l->container->data)[__X(i - 1, l->container->len[0])];
 		i += -1;
 	}
@@ -127,13 +121,14 @@ DynamicArray_AObject DynamicArray_Delete (DynamicArray_DArray l, INT16 index)
 	DynamicArray_AObject oldObject = NIL;
 	INT16 i, _for__4;
 	oldObject = (l->container->data)[__X(index, l->container->len[0])];
-	_for__4 = l->numberOfElements - 1;
+	_for__4 = l->numberOfElements - 2;
 	i = index;
 	while (i <= _for__4) {
 		(l->container->data)[__X(i, l->container->len[0])] = (l->container->data)[__X(i + 1, l->container->len[0])];
 		i += 1;
 	}
 	(l->container->data)[__X(l->numberOfElements - 1, l->container->len[0])] = NIL;
+	l->numberOfElements -= 1;
 	return oldObject;
 }
 
