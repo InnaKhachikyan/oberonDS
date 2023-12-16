@@ -44,7 +44,9 @@ import ADDRESS *DynamicArray_DArrayDesc__typ;
 import void DynamicArray_Add (DynamicArray_DArray l, DynamicArray_AObject newElement);
 import DynamicArray_DArray DynamicArray_Create (INT16 Capacity);
 import DynamicArray_AObject DynamicArray_Delete (DynamicArray_DArray l, INT16 index);
+import DynamicArray_AObject DynamicArray_Get (DynamicArray_DArray l, INT16 index);
 import void DynamicArray_Insert (DynamicArray_DArray l, INT16 index, DynamicArray_AObject newElement);
+import void DynamicArray_Resize (DynamicArray_DArray l);
 import DynamicArray_AObject DynamicArray_SetAt (DynamicArray_DArray l, INT16 index, DynamicArray_AObject newElement);
 import void *DynamicArray__init(void);
 
