@@ -12,13 +12,13 @@ TYPE
        KObjectDesc* = RECORD;
         END;
 
-              VObject* = POINTER TO VObjectDesc;    
-            VObjectDesc* = RECORD;
+           VObject* = POINTER TO VObjectDesc;    
+       VObjectDesc* = RECORD;
         END;
 
       (* A MapEntry is a key-value pair. *)
-          MapEntry * = POINTER TO MapEntryDesc;
-      MapEntryDesc * = RECORD;
+         MapEntry * = POINTER TO MapEntryDesc;
+     MapEntryDesc * = RECORD;
                key* : KObject;
              value* : VObject;
     END;
@@ -31,8 +31,8 @@ TYPE
     END;
 
     (* A Map is a collection of nodes storing key-value pairs with a container DArray. *)
-               Map* = POINTER TO MapDesc;
-           MapDesc* = RECORD;
+              Map* = POINTER TO MapDesc;
+          MapDesc* = RECORD;
         container* : DynamicArray.DArray;
           Create * : PROCEDURE (capacity: INTEGER): Map;
 NumberOfElements * : PROCEDURE (h: Map): INTEGER;
@@ -84,7 +84,7 @@ NumberOfElements * : PROCEDURE (h: Map): INTEGER;
         node : AObject;
         entry : MapEntry;
     BEGIN
-        (* FOR i := 0 TO h.container.numberOfElements - 1 DO
+        FOR i := 0 TO h.container.numberOfElements - 1 DO
             Out.String("looping");Out.Int(i,0); Out.Ln;
             node := DynamicArray.Get(h.container, i);
             entry := node(Node).entry;
@@ -92,7 +92,7 @@ NumberOfElements * : PROCEDURE (h: Map): INTEGER;
                 entry.value := value;
                 RETURN;
             END;
-        END; *)
+        END;
         NEW(node);
         NEW(entry);
         entry.key := key;
