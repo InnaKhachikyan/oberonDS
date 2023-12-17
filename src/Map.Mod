@@ -2,33 +2,33 @@ MODULE Map;
 IMPORT DynamicArray, Out;
 
 TYPE
-           AObject* = DynamicArray.AObject;
-       AObjectDesc* = DynamicArray.AObjectDesc;
+          AObject* = DynamicArray.AObject;
+      AObjectDesc* = DynamicArray.AObjectDesc;
 
-            DArray* = DynamicArray.DArray;
-        DArrayDesc* = DynamicArray.DArrayDesc;
+           DArray* = DynamicArray.DArray;
+       DArrayDesc* = DynamicArray.DArrayDesc;
 
-           KObject* = POINTER TO KObjectDesc;
-       KObjectDesc* = RECORD;
-        END;
+          KObject* = POINTER TO KObjectDesc;
+      KObjectDesc* = RECORD (AObjectDesc);
+      END;
 
-           VObject* = POINTER TO VObjectDesc;    
-       VObjectDesc* = RECORD;
-        END;
+          VObject* = POINTER TO VObjectDesc;    
+      VObjectDesc* = RECORD (AObjectDesc);
+      END;
 
-      (* A MapEntry is a key-value pair. *)
-         MapEntry * = POINTER TO MapEntryDesc;
-     MapEntryDesc * = RECORD;
-               key* : KObject;
-             value* : VObject;
+     (* A MapEntry is a key-value pair. *)
+        MapEntry * = POINTER TO MapEntryDesc;
+    MapEntryDesc * = RECORD;
+              key* : KObject;
+            value* : VObject;
     END;
 
-      (* Node which will store MapEntry *)
-              Node* = POINTER TO NodeDesc;
-          NodeDesc* = RECORD (AObjectDesc);
-             entry* : MapEntry;
-              next* : Node;
-    END;
+     (* Node which will store MapEntry *)
+             Node* = POINTER TO NodeDesc;
+         NodeDesc* = RECORD (AObjectDesc);
+            entry* : MapEntry;
+             next* : Node;
+     END;
 
     (* A Map is a collection of nodes storing key-value pairs with a container DArray. *)
               Map* = POINTER TO MapDesc;
@@ -37,13 +37,12 @@ TYPE
           Create * : PROCEDURE (capacity: INTEGER): Map;
 NumberOfElements * : PROCEDURE (h: Map): INTEGER;
          IsEmpty * : PROCEDURE (h: Map): BOOLEAN;
-
-  (* ContainsKey * : PROCEDURE (h: Map; key: KObject): BOOLEAN;*)
-
              Get * : PROCEDURE (h: Map; key: KObject): VObject;
     AddOrReplace * : PROCEDURE (h: Map; key: KObject; value: VObject);
           Remove * : PROCEDURE (h: Map; key: KObject): VObject; 
-        END;
+            Keys * : PROCEDURE (h: Map): DArray;
+          Values * : PROCEDURE (h: Map): DArray;
+   END;
 
     
     PROCEDURE Create* (capacity : INTEGER) : Map;
@@ -65,8 +64,8 @@ NumberOfElements * : PROCEDURE (h: Map): INTEGER;
     END IsEmpty;
 
     PROCEDURE Get* (h : Map; key : KObject) : VObject;
-    VAR i : INTEGER;
-        node : AObject;
+    VAR     i : INTEGER;
+         node : AObject;
         entry : MapEntry;
     BEGIN
         FOR i := 0 TO h.container.numberOfElements - 1 DO
@@ -80,14 +79,14 @@ NumberOfElements * : PROCEDURE (h: Map): INTEGER;
     END Get;
 
     PROCEDURE AddOrReplace* (h : Map; key : KObject; value : VObject);
-    VAR i : INTEGER;
-        node : AObject;
+    VAR     i : INTEGER;
+        aNode : AObject;
+         node : Node;
         entry : MapEntry;
     BEGIN
         FOR i := 0 TO h.container.numberOfElements - 1 DO
-            Out.String("looping");Out.Int(i,0); Out.Ln;
-            node := DynamicArray.Get(h.container, i);
-            entry := node(Node).entry;
+            aNode := DynamicArray.Get(h.container, i);
+            entry := aNode(Node).entry;
             IF entry.key = key THEN
                 entry.value := value;
                 RETURN;
@@ -102,8 +101,8 @@ NumberOfElements * : PROCEDURE (h: Map): INTEGER;
     END AddOrReplace;
 
     PROCEDURE Remove* (h : Map; key : KObject) : VObject;
-    VAR i : INTEGER;
-        node : AObject;
+    VAR     i : INTEGER;
+         node : AObject;
         entry : MapEntry;
     BEGIN
         FOR i := 0 TO h.container.numberOfElements - 1 DO
@@ -116,5 +115,36 @@ NumberOfElements * : PROCEDURE (h: Map): INTEGER;
         END;
         RETURN NIL;
     END Remove;
+
+    PROCEDURE Keys* (h : Map) : DArray;
+    VAR     i : INTEGER;
+         node : AObject;
+        entry : MapEntry;
+         keys : DArray;
+    BEGIN
+        keys := DynamicArray.Create(h.container.numberOfElements);
+        FOR i := 0 TO h.container.numberOfElements - 1 DO
+            node := DynamicArray.Get(h.container, i);
+            entry := node(Node).entry;
+            DynamicArray.Add(keys, entry.key);
+        END;
+        RETURN keys;
+    END Keys;
+
+    PROCEDURE Values* (h : Map) : DArray;
+    VAR     i : INTEGER;
+         node : AObject;
+        entry : MapEntry;
+       values : DArray;
+    BEGIN
+        values := DynamicArray.Create(h.container.numberOfElements);
+        FOR i := 0 TO h.container.numberOfElements - 1 DO
+            node := DynamicArray.Get(h.container, i);
+            entry := node(Node).entry;
+            DynamicArray.Add(values, entry.value);
+        END;
+        RETURN values;
+    END Values;
+    
 
 END Map.
