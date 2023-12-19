@@ -1,5 +1,5 @@
 MODULE Map;
-IMPORT DynamicArray, Out;
+IMPORT DynamicArray, Out, SYSTEM, Math;
 
 TYPE
           AObject* = DynamicArray.AObject;
@@ -145,6 +145,110 @@ NumberOfElements * : PROCEDURE (h: Map): INTEGER;
         END;
         RETURN values;
     END Values;
-    
+
+    PROCEDURE Power* (base, exponent : INTEGER) : HUGEINT;
+    VAR i, result : HUGEINT;
+    BEGIN
+        result := 1;
+        FOR i := 0 TO exponent - 1 DO
+            result := result * base;
+        END;
+        RETURN result;
+    END Power;
+
+	(* hashcode calculates a huge number using digits of the address    
+	of the key taking into consideration their order, for now coefficient 
+	var is a concrete number, it is temporary, I'll change it when I
+	figure out how to generate random number *) 
+    PROCEDURE HashCode* (key: KObject): HUGEINT;
+    VAR 
+        adr: HUGEINT;
+        coefficient: INTEGER;
+        i: INTEGER;
+        digit: HUGEINT;
+        hash: HUGEINT;
+    BEGIN
+        i := 0;
+        coefficient := 37;
+        hash := 0;
+        adr := SYSTEM.VAL(HUGEINT, SYSTEM.ADR(key));
+        Out.String("key address: "); Out.Int(adr, 0); Out.Ln;
+        WHILE adr > 0 DO
+            digit := adr MOD 10;  (* Extract the least significant digit *)
+            Out.String("digit: "); Out.Int(digit, 0); Out.Ln;
+            adr := adr DIV 10;    (* Move to the next digit *)
+            
+            hash := hash + digit * (Power(coefficient, i));
+            i := i + 1;
+        END;
+        
+        RETURN hash;
+    END HashCode;
+
+        PROCEDURE IsPrime*(n: INTEGER): BOOLEAN;
+    VAR 
+        i: INTEGER;
+        upto : INTEGER;
+    BEGIN
+        i := 2;
+        upto := SYSTEM.VAL(INTEGER, Math.sqrt(n));
+        WHILE i <= upto DO
+            IF n MOD i = 0 THEN
+                RETURN FALSE;
+            END;
+            i := i + 1;
+        END;
+        RETURN TRUE;
+    END IsPrime;
+
+	(* finds the first prime that is greater than a given number
+	in our case we need a prime that is bigger than the range of the 
+	Dynamic arry *)
+    PROCEDURE NextPrime* (n: INTEGER): INTEGER;
+    VAR 
+        i: INTEGER;
+        prime: BOOLEAN;
+    BEGIN
+        i := n+1;
+        WHILE TRUE DO
+            prime := IsPrime(i);
+            IF prime THEN
+                RETURN i;
+            END;
+            i := i + 1;
+        END;
+    END NextPrime;
+
+	(* compression function is used to compress the hugeint generated
+	by the hashcode and return an int in the range of the dynamic array;
+	for now vars a and b are given concrete values, that's temporary;
+	I'll change it, when figure out how to generate random numbers *)
+    PROCEDURE CompressHash* (hash: HUGEINT; range: INTEGER): INTEGER;
+    VAR 
+        a : HUGEINT;
+        b : HUGEINT;
+        prime : HUGEINT;
+        result : HUGEINT;
+        returnVal : INTEGER;
+    BEGIN
+        a := 11;
+        b := 17;
+        prime := FirstPrime(range);
+        result := (a * hash + b);
+        result := result MOD prime;
+        result := result MOD range;
+        returnVal := SYSTEM.VAL(INTEGER, result);
+        RETURN returnVal;
+    END CompressHash;
+
+    PROCEDURE HashFunction* (key: KObject; range: INTEGER): INTEGER;
+    VAR 
+        hash: HUGEINT;
+        returnVal: INTEGER;
+    BEGIN
+        hash := HashCode(key);
+        returnVal := CompressHash(hash, range);
+        RETURN returnVal;
+    END HashFunction;
 
 END Map.

@@ -1,5 +1,5 @@
 MODULE MapTest;
-IMPORT Map, Out, DynamicArray;
+IMPORT Map, Out, DynamicArray, SYSTEM;
 
 TYPE    
     KObject* = Map.KObject;
@@ -25,10 +25,13 @@ AObjectDesc* = DynamicArray.AObjectDesc;
    NodeDesc* = Map.NodeDesc;
 
 VAR
+        prime* : BOOLEAN;
          map1* : Map.Map;
          map2* : Map.Map;
          map3* : Map.Map;
             i* : INTEGER;
+     kAddress* : HUGEINT;
+   hashResult* : HUGEINT;
 
          key1* : AKey;
          key2* : AKey;
@@ -185,5 +188,27 @@ BEGIN
         Out.String("value: "); Out.Int(returnVal2(AValue).value, 0); Out.Ln;
     END;
 
+    Out.String("testing hashcode: "); Out.Ln;
+    key2 := key1;
+    kAddress := SYSTEM.VAL(HUGEINT, SYSTEM.ADR(key1));
+    Out.String("key1 address: "); Out.Int(kAddress, 0); Out.Ln;
+    hashResult := Map.HashCode(key1);
+    hashResult := Map.HashCode(key2);
+
+    Out.String("testing FirstPrime method: "); Out.Ln;
+    i := Map.FirstPrime(1429);
+    Out.Int(i, 0); Out.Ln;
+
+    Out.String("testing hashFunction"); Out.Ln;
+    hashResult := Map.HashFunction(key1, 10);
+    Out.Int(hashResult, 0); Out.Ln;
+
+    key2 := key1;
+    hashResult := Map.HashFunction(key2, 10);
+    Out.Int(hashResult, 0); Out.Ln;
+
+    key3 := key1;
+    hashResult := Map.HashFunction(key3, 10);
+    Out.Int(hashResult, 0); Out.Ln;
 
 END MapTest.
