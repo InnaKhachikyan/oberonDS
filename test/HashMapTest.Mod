@@ -2,33 +2,33 @@ MODULE HashMapTest;
 IMPORT Out, HashMap, Map, DynamicArray;
 
 TYPE
-    AObject* = DynamicArray.AObject;
-AObjectDesc* = DynamicArray.AObjectDesc;
+     AObject* = DynamicArray.AObject;
+ AObjectDesc* = DynamicArray.AObjectDesc;
 
-    DArray* = DynamicArray.DArray;
-DArrayDesc* = DynamicArray.DArrayDesc;
+      DArray* = DynamicArray.DArray;
+  DArrayDesc* = DynamicArray.DArrayDesc;
 
-        KVMap* = Map.KVMap;
-    KVMapDesc* = Map.KVMapDesc;
+       KVMap* = Map.KVMap;
+   KVMapDesc* = Map.KVMapDesc;
     
         HMap* = HashMap.HMap;
     HMapDesc* = HashMap.HMapDesc;
     
         AKey* = POINTER TO AKeyDesc;
     AKeyDesc* = RECORD (HashMap.KObjectDesc);
-            key* : INTEGER;
-        END;
+         key* : INTEGER;
+    END;
     
-        AValue* = POINTER TO AValueDesc;
-    AValueDesc* = RECORD (HashMap.VObjectDesc);
-        value* : INTEGER;
-        END;
+      AValue* = POINTER TO AValueDesc;
+  AValueDesc* = RECORD (HashMap.VObjectDesc);
+       value* : INTEGER;
+  END;
 
         Node* = HashMap.Node;
     NodeDesc* = HashMap.NodeDesc;
 
-        MapEntry* = HashMap.MapEntry;
-    MapEntryDesc* = HashMap.MapEntryDesc;
+    MapEntry* = HashMap.MapEntry;
+MapEntryDesc* = HashMap.MapEntryDesc;
 
 VAR
     hashMap1* : HMap;
@@ -64,7 +64,7 @@ VAR
      value10* : AValue;
 
 BEGIN
-    Out.String("Test HashMap"); Out.Ln;
+    Out.String("------Test HashMap------"); Out.Ln;
 
     hashMap1 := HashMap.Create(10);
     hashMap2 := HashMap.Create(10);
@@ -124,28 +124,28 @@ BEGIN
     value9.value := 9;
     HashMap.AddOrReplace(hashMap1, key9, value9);
 
-    Out.String("Testing method NumberOfElements"); Out.Ln;
+    Out.String("------Testing method NumberOfElements------"); Out.Ln;
     IF HashMap.NumberOfElements(hashMap1) = 9 THEN 
         Out.String("NumberOfElements Test passed"); Out.Ln;
     ELSE
         Out.String("NumberOfElements Test failed"); Out.Ln;
     END;
 
-    Out.String("Testing method IsEmpty"); Out.Ln;
+    Out.String("------Testing method IsEmpty------"); Out.Ln;
     IF HashMap.IsEmpty(hashMap1) = FALSE THEN
         Out.String("IsEmpty Test passed"); Out.Ln;
     ELSE
         Out.String("IsEmpty Test failed"); Out.Ln;
     END;
 
-    Out.String("Testing method Get"); Out.Ln;
+    Out.String("------Testing method Get------"); Out.Ln;
     IF HashMap.Get(hashMap1, key1) = value1 THEN
         Out.String("Get Test passed"); Out.Ln;
     ELSE
         Out.String("Get Test failed"); Out.Ln;
     END;
 
-    Out.String("Testing method Remove"); Out.Ln;
+    Out.String("------Testing method Remove------"); Out.Ln;
     IF HashMap.Remove(hashMap1, key1) = value1 THEN
         IF HashMap.Get(hashMap1, key1) = NIL THEN
             Out.String("Remove Test passed"); Out.Ln;
@@ -154,7 +154,7 @@ BEGIN
         END;
     END;
 
-    Out.String("Testing method AddOrReplace"); Out.Ln;
+    Out.String("------Testing method AddOrReplace------"); Out.Ln;
     NEW(key10);
     key10.key := 10;
     NEW(value10);

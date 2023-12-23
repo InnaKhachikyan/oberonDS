@@ -74,7 +74,7 @@ END Get;
 PROCEDURE AddOrReplace* (h : KVMap; key : KObject; value : VObject);
 VAR     
         i : INTEGER;
-    aEntry : AObject;
+   aEntry : AObject;
     entry : MapEntry;
 BEGIN
     FOR i := 0 TO h.container.numberOfElements - 1 DO
@@ -92,7 +92,7 @@ END AddOrReplace;
 
 PROCEDURE Remove* (h : KVMap; key : KObject) : VObject;
 VAR     
-        i : INTEGER;
+         i : INTEGER;
     aEntry : AObject;
 BEGIN
     FOR i := 0 TO h.container.numberOfElements - 1 DO
@@ -109,7 +109,7 @@ PROCEDURE Keys* (h : KVMap) : DArray;
 VAR     
         i : INTEGER;
     entry : AObject;
-        keys : DArray;
+     keys : DArray;
 BEGIN
     keys := DynamicArray.Create(h.container.numberOfElements);
     FOR i := 0 TO h.container.numberOfElements - 1 DO
@@ -123,7 +123,7 @@ PROCEDURE Values* (h : KVMap) : DArray;
 VAR     
         i : INTEGER;
     entry : AObject;
-    values : DArray;
+   values : DArray;
 BEGIN
     values := DynamicArray.Create(h.container.numberOfElements);
     FOR i := 0 TO h.container.numberOfElements - 1 DO

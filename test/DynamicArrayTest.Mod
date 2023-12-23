@@ -3,8 +3,8 @@ MODULE DynamicArrayTest;
 IMPORT DynamicArray, Out;
 
 TYPE
-	    AObject* = DynamicArray.AObject;
-    AObjectDesc* = DynamicArray.AObjectDesc;
+     AObject* = DynamicArray.AObject;
+ AObjectDesc* = DynamicArray.AObjectDesc;
 
         AInt* = POINTER TO AIntDesc;
     AIntDesc* = RECORD (DynamicArray.AObjectDesc);
@@ -12,26 +12,26 @@ TYPE
     END;
 
 VAR
-    arr1* : DynamicArray.DArray;
-    arr2* : DynamicArray.DArray;
-    arr3* : DynamicArray.DArray;
+     arr1* : DynamicArray.DArray;
+     arr2* : DynamicArray.DArray;
+     arr3* : DynamicArray.DArray;
 
-    i* : INTEGER;
+        i* : INTEGER;
 
-     element1* : AInt;
-     element2* : AInt;
-     element3* : AInt;
-     element4* : AInt;
-     element5* : AInt;
-     element6* : AInt;
-     element7* : AInt;
-     element8* : AInt;
-     element9* : AInt;
-    element10* : AInt;
+ element1* : AInt;
+ element2* : AInt;
+ element3* : AInt;
+ element4* : AInt;
+ element5* : AInt;
+ element6* : AInt;
+ element7* : AInt;
+ element8* : AInt;
+ element9* : AInt;
+element10* : AInt;
 
-	 parentA1* : AObject;
-	 parentA2* : AObject;
-	 parentA3* : AObject; 
+ parentA1* : AObject;
+ parentA2* : AObject;
+ parentA3* : AObject; 
 
 BEGIN
     NEW(element1);

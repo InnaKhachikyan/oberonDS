@@ -37,9 +37,9 @@ END Create;
 
 PROCEDURE Resize (l : DArray);
 VAR      
-            newSize : INTEGER;
+         newSize : INTEGER;
     newContainer : pcontainer;
-                i : INTEGER;
+               i : INTEGER;
 BEGIN
     newSize := l.capacity * 2;
     NEW(newContainer, newSize);
