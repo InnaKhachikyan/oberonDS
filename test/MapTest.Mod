@@ -1,37 +1,37 @@
 MODULE MapTest;
-IMPORT Map, Out, DynamicArray, SYSTEM;
+IMPORT Map, Out, DynamicArray;
 
 TYPE    
-    KObject* = Map.KObject;
-KObjectDesc* = Map.KObjectDesc;
+      KObject* = Map.KObject;
+  KObjectDesc* = Map.KObjectDesc;
 
-       AKey* = POINTER TO AKeyDesc;
-   AKeyDesc* = RECORD (Map.KObjectDesc);
-        key* : INTEGER;
+         AKey* = POINTER TO AKeyDesc;
+     AKeyDesc* = RECORD (Map.KObjectDesc);
+          key* : INTEGER;
     END;
 
-    VObject* = Map.VObject;
-VObjectDesc* = Map.VObjectDesc;
+      VObject* = Map.VObject;
+  VObjectDesc* = Map.VObjectDesc;
 
-     AValue* = POINTER TO AValueDesc;
- AValueDesc* = RECORD (Map.VObjectDesc);
-      value* : INTEGER;
+       AValue* = POINTER TO AValueDesc;
+   AValueDesc* = RECORD (Map.VObjectDesc);
+        value* : INTEGER;
      END;
 
-    AObject* = DynamicArray.AObject;
-AObjectDesc* = DynamicArray.AObjectDesc;
+      AObject* = DynamicArray.AObject;
+  AObjectDesc* = DynamicArray.AObjectDesc;
 
-       Node* = Map.Node;
-   NodeDesc* = Map.NodeDesc;
+     MapEntry* = Map.MapEntry;
+ MapEntryDesc* = Map.MapEntryDesc;
+
+        KVMap* = Map.KVMap;
+
 
 VAR
-        prime* : BOOLEAN;
-         map1* : Map.Map;
-         map2* : Map.Map;
-         map3* : Map.Map;
+         map1* : Map.KVMap;
+         map2* : Map.KVMap;
+         map3* : Map.KVMap;
             i* : INTEGER;
-     kAddress* : HUGEINT;
-   hashResult* : HUGEINT;
 
          key1* : AKey;
          key2* : AKey;
@@ -56,8 +56,7 @@ VAR
       value10* : AValue;
 
         entry* : Map.MapEntry;
-        aNode* : AObject;
-         node* : Map.Node;
+       aEntry* : AObject;
    returnVal1* : VObject;
    returnVal2* : VObject;
    returnVal3* : VObject;
@@ -151,9 +150,9 @@ BEGIN
     Map.AddOrReplace(map1, key10, value10);
 
     FOR i := 0 TO map1.container.numberOfElements - 1 DO
-        aNode := DynamicArray.Get(map1.container, i);
-        entry := aNode(Node).entry;
-        Out.String("key: "); Out.Int(entry.key(AKey).key, 0); Out.String(" value: "); Out.Int(entry.value(AValue).value, 0); Out.Ln;
+        aEntry := DynamicArray.Get(map1.container, i);
+        Out.String("key: "); Out.Int(aEntry(MapEntry).key(AKey).key, 0); 
+        Out.String(" value: "); Out.Int(aEntry(MapEntry).value(AValue).value, 0); Out.Ln;
     END;
 
     Out.String("number of elements before removal: "); Out.Ln;
@@ -167,9 +166,9 @@ BEGIN
     Out.Int(map1.container.numberOfElements, 0); Out.Ln;
 
     FOR i := 0 TO map1.container.numberOfElements - 1 DO
-        aNode := DynamicArray.Get(map1.container, i);
-        entry := aNode(Node).entry;
-        Out.String("key: "); Out.Int(entry.key(AKey).key, 0); Out.String(" value: "); Out.Int(entry.value(AValue).value, 0); Out.Ln;
+        aEntry := DynamicArray.Get(map1.container, i);
+        Out.String("key: "); Out.Int(aEntry(MapEntry).key(AKey).key, 0); 
+        Out.String(" value: "); Out.Int(aEntry(MapEntry).value(AValue).value, 0); Out.Ln;
     END;
 
     Out.String("Testing iterator of keys"); Out.Ln;
@@ -187,28 +186,5 @@ BEGIN
         returnVal2  := returnA2(VObject);
         Out.String("value: "); Out.Int(returnVal2(AValue).value, 0); Out.Ln;
     END;
-
-    Out.String("testing hashcode: "); Out.Ln;
-    key2 := key1;
-    kAddress := SYSTEM.VAL(HUGEINT, SYSTEM.ADR(key1));
-    Out.String("key1 address: "); Out.Int(kAddress, 0); Out.Ln;
-    hashResult := Map.HashCode(key1);
-    hashResult := Map.HashCode(key2);
-
-    Out.String("testing FirstPrime method: "); Out.Ln;
-    i := Map.FirstPrime(1429);
-    Out.Int(i, 0); Out.Ln;
-
-    Out.String("testing hashFunction"); Out.Ln;
-    hashResult := Map.HashFunction(key1, 10);
-    Out.Int(hashResult, 0); Out.Ln;
-
-    key2 := key1;
-    hashResult := Map.HashFunction(key2, 10);
-    Out.Int(hashResult, 0); Out.Ln;
-
-    key3 := key1;
-    hashResult := Map.HashFunction(key3, 10);
-    Out.Int(hashResult, 0); Out.Ln;
 
 END MapTest.
