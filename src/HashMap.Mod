@@ -31,7 +31,6 @@ TYPE
 (* A HashMap is a collection of nodes storing key-value pairs *)
              HMap* = POINTER TO HMapDesc;
          HMapDesc* = RECORD(KVMapDesc);
-           Create* : PROCEDURE (capacity: INTEGER): HMap;
            IsPrime : PROCEDURE (n: INTEGER): BOOLEAN;
              Power : PROCEDURE (base, exponent : INTEGER): HUGEINT;
          NextPrime : PROCEDURE (n: INTEGER): INTEGER;
@@ -39,6 +38,16 @@ TYPE
       CompressHash : PROCEDURE (hash: HUGEINT; range: INTEGER): INTEGER;
       HashFunction : PROCEDURE (key: KObject; range: INTEGER): INTEGER;
 END;
+
+PROCEDURE NumberOfElements* (h : HMap) : INTEGER;
+BEGIN
+    RETURN Map.NumberOfElements(h);
+END NumberOfElements;
+
+PROCEDURE IsEmpty* (h : HMap) : BOOLEAN;
+BEGIN
+    RETURN Map.IsEmpty(h);
+END IsEmpty;
 
 PROCEDURE Create* (capacity : INTEGER) : HMap;
 VAR 
@@ -48,6 +57,71 @@ BEGIN
     h.container := DynamicArray.Create(capacity);
     RETURN h;
 END Create;
+
+PROCEDURE Get* (h : HMap; key : KObject) : VObject;
+VAR     
+        i : INTEGER;
+     node : AObject;
+    entry : MapEntry;
+BEGIN
+    FOR i := 0 TO h.container.numberOfElements - 1 DO
+        node := DynamicArray.Get(h.container, i);
+        entry := node(Node).entry;
+        IF entry.key = key THEN
+            RETURN entry.value;
+        END;
+    END;
+    RETURN NIL;
+END Get;
+
+PROCEDURE Remove* (h : HMap; key : KObject) : VObject;
+VAR     
+        i : INTEGER;
+     node : AObject;
+    entry : MapEntry;
+BEGIN
+    FOR i := 0 TO h.container.numberOfElements - 1 DO
+        node := DynamicArray.Get(h.container, i);
+        entry := node(Node).entry;
+        IF entry.key = key THEN
+            node := DynamicArray.Delete(h.container, i);
+            RETURN entry.value;
+        END;
+    END;
+    RETURN NIL;
+END Remove;
+
+PROCEDURE Keys* (h : HMap) : DArray;
+VAR     
+        i : INTEGER;
+     node : AObject;
+    entry : MapEntry;
+     keys : DArray;
+BEGIN
+    keys := DynamicArray.Create(h.container.numberOfElements);
+    FOR i := 0 TO h.container.numberOfElements - 1 DO
+        node := DynamicArray.Get(h.container, i);
+        entry := node(Node).entry;
+        DynamicArray.Add(keys, entry.key);
+    END;
+    RETURN keys;
+END Keys;
+
+PROCEDURE Values* (h : HMap) : DArray;
+VAR     
+         i : INTEGER;  
+      node : AObject;
+     entry : MapEntry;
+    values : DArray;
+BEGIN
+    values := DynamicArray.Create(h.container.numberOfElements);
+    FOR i := 0 TO h.container.numberOfElements - 1 DO
+        node := DynamicArray.Get(h.container, i);
+        entry := node(Node).entry;
+        DynamicArray.Add(values, entry.value);
+    END;
+    RETURN values;
+END Values;
 
 PROCEDURE Power (base, exponent : INTEGER) : HUGEINT;
 VAR 
@@ -139,28 +213,32 @@ BEGIN
     RETURN returnVal;
 END HashFunction;
 
-PROCEDURE AddOrReplace (h: HMap; key: KObject; value: VObject);
-VAR 
-         index : INTEGER;
-         aNode : AObject;
-          node : Node;
-         entry : MapEntry;
-    returnNode : AObject;
+PROCEDURE AddOrReplace* (h : HMap; key : KObject; value : VObject);
+VAR     
+    index : INTEGER;
+    aNode : AObject;
+     node : Node;
+    entry : MapEntry;
 BEGIN
     index := HashFunction(key, h.container.capacity);
     aNode := DynamicArray.Get(h.container, index);
-    entry := aNode(Node).entry;
-    IF entry.key = key THEN
-        entry.value := value;
-        RETURN;
-    ELSE
+    IF aNode = NIL THEN
         NEW(node);
         NEW(entry);
         entry.key := key;
         entry.value := value;
-        node.entry := entry;
+        node(Node).entry := entry;
+        DynamicArray.Add(h.container, node);
+    ELSE
+        WHILE aNode(Node).next # NIL DO
+            aNode := aNode(Node).next;
+        END;
+        NEW(node);
+        NEW(entry);
+        entry.key := key;
+        entry.value := value;
+        node(Node).entry := entry;
         aNode(Node).next := node;
-        returnNode := DynamicArray.SetAt(h.container,index,aNode);
     END;
 END AddOrReplace;
 

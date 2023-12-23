@@ -26,10 +26,12 @@ build_deps:
 build_Modules:
 	cd $(BUILD) && $(VOC) -s $(mkfile_dir_path)/src/DynamicArray.Mod
 	cd $(BUILD) && $(VOC) -s $(mkfile_dir_path)/src/Map.Mod
+	cd $(BUILD) && $(VOC) -s $(mkfile_dir_path)/src/HashMap.Mod
 
 tests:
 	cd $(BUILD) && $(VOC) $(mkfile_dir_path)/test/DynamicArrayTest.Mod -m
 	cd $(BUILD) && $(VOC) $(mkfile_dir_path)/test/MapTest.Mod -m
+	cd $(BUILD) && $(VOC) $(mkfile_dir_path)/test/HashMapTest.Mod -m
 	#build/testStrUtils
 
 clean:
