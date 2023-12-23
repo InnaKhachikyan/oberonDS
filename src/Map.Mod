@@ -17,8 +17,8 @@ TYPE
       END;
 
      (* A MapEntry is a key-value pair. *)
-        MapEntry * = POINTER TO MapEntryDesc;
-    MapEntryDesc * = RECORD(AObjectDesc);
+         MapEntry* = POINTER TO MapEntryDesc;
+     MapEntryDesc* = RECORD(AObjectDesc);
               key* : KObject;
             value* : VObject;
     END;
@@ -27,14 +27,14 @@ TYPE
             KVMap* = POINTER TO KVMapDesc;
         KVMapDesc* = RECORD;
         container* : DynamicArray.DArray;
-          Create * : PROCEDURE (capacity: INTEGER): KVMap;
-NumberOfElements * : PROCEDURE (h: KVMap): INTEGER;
-         IsEmpty * : PROCEDURE (h: KVMap): BOOLEAN;
-             Get * : PROCEDURE (h: KVMap; key: KObject): VObject;
-    AddOrReplace * : PROCEDURE (h: KVMap; key: KObject; value: VObject);
-          Remove * : PROCEDURE (h: KVMap; key: KObject): VObject; 
-            Keys * : PROCEDURE (h: KVMap): DArray;
-          Values * : PROCEDURE (h: KVMap): DArray;
+           Create* : PROCEDURE (capacity: INTEGER): KVMap;
+ NumberOfElements* : PROCEDURE (h: KVMap): INTEGER;
+          IsEmpty* : PROCEDURE (h: KVMap): BOOLEAN;
+              Get* : PROCEDURE (h: KVMap; key: KObject): VObject;
+     AddOrReplace* : PROCEDURE (h: KVMap; key: KObject; value: VObject);
+           Remove* : PROCEDURE (h: KVMap; key: KObject): VObject; 
+             Keys* : PROCEDURE (h: KVMap): DArray;
+           Values* : PROCEDURE (h: KVMap): DArray;
    END;
 
     
