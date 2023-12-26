@@ -1,6 +1,6 @@
 MODULE Map;
 IMPORT DynamicArray, Out, SYSTEM, Math;
-
+ 
 TYPE
           AObject* = DynamicArray.AObject;
       AObjectDesc* = DynamicArray.AObjectDesc;

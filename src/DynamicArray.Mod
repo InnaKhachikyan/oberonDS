@@ -1,6 +1,6 @@
 MODULE DynamicArray;
 IMPORT Out;
-
+ 
 TYPE 
          AObject* = POINTER TO AObjectDesc;
      AObjectDesc* = RECORD
@@ -10,7 +10,6 @@ TYPE
 
           DArray* = POINTER TO DArrayDesc;
       DArrayDesc* = RECORD
-   CreateDefault* : PROCEDURE () : DArray;
           Create* : PROCEDURE()  : DArray;
              Get* : PROCEDURE (l : DArray; index : INTEGER) : AObject;
              Add* : PROCEDURE (l : DArray; newElement : AObject);
@@ -26,7 +25,6 @@ numberOfElements- : INTEGER;
 PROCEDURE Create* (Capacity : INTEGER) : DArray;
 VAR 
     l : DArray;
-    i : INTEGER;
 BEGIN
     NEW(l);
     l.capacity := Capacity;

@@ -1,127 +1,113 @@
 MODULE HashMap;
-IMPORT SYSTEM, Out, Math, DynamicArray, Map;
+IMPORT SYSTEM, Out, Math;
 
 TYPE
-          AObject* = DynamicArray.AObject;
-      AObjectDesc* = DynamicArray.AObjectDesc;
+         NObject* = POINTER TO NObjectDesc;
+     NObjectDesc* = RECORD;
+     END;
 
-           DArray* = DynamicArray.DArray;
-       DArrayDesc* = DynamicArray.DArrayDesc;
+         KObject* = POINTER TO KObjectDesc;
+     KObjectDesc* = RECORD (NObjectDesc);
+     END;
 
-            KVMap* = Map.KVMap;
-        KVMapDesc* = Map.KVMapDesc;
+         VObject* = POINTER TO VObjectDesc;
+     VObjectDesc* = RECORD (NObjectDesc);
+     END;
 
-    (* A MapEntry is a key-value pair *)
-         MapEntry* = Map.MapEntry;
-     MapEntryDesc* = Map.MapEntryDesc;
+        MapEntry* = POINTER TO MapEntryDesc;
+    MapEntryDesc* = RECORD (NObjectDesc);
+             key* : KObject;
+           value* : VObject;
+    END;
 
-          KObject* = Map.KObject;
-      KObjectDesc* = Map.KObjectDesc;
-
-          VObject* = Map.VObject;
-      VObjectDesc* = Map.VObjectDesc;
-
-(* Node which will store MapEntry and a reference to next *)
-             Node* = POINTER TO NodeDesc;
-         NodeDesc* = RECORD (AObjectDesc);
-            entry* : Map.MapEntry;
-             next* : Node;
+            Node* = POINTER TO NodeDesc;
+        NodeDesc* = RECORD (NObjectDesc);
+       CreateNode : PROCEDURE (entry: MapEntry): Node;
+           entry* : MapEntry;
+            next* : Node;
         END;
 
-(* A HashMap is a collection of nodes storing key-value pairs *)
-             HMap* = POINTER TO HMapDesc;
-         HMapDesc* = RECORD(KVMapDesc);
-           IsPrime : PROCEDURE (n: INTEGER): BOOLEAN;
-             Power : PROCEDURE (base, exponent : INTEGER): HUGEINT;
-         NextPrime : PROCEDURE (n: INTEGER): INTEGER;
-          HashCode : PROCEDURE (key: KObject): HUGEINT;
-      CompressHash : PROCEDURE (hash: HUGEINT; range: INTEGER): INTEGER;
-      HashFunction : PROCEDURE (key: KObject; range: INTEGER): INTEGER;
+       hcontainer = POINTER TO ARRAY OF NObject;
+    (* kObjectArray* = POINTER TO ARRAY OF KObject; *)
+
+    kObjectArray* = POINTER TO kObjectArrayDesc;
+kObjectArrayDesc* = RECORD;
+CreateKObjectArray : PROCEDURE (capacity: INTEGER): kObjectArray;
+capacity* : INTEGER;
+container* : POINTER TO ARRAY OF KObject;
 END;
 
-PROCEDURE NumberOfElements* (h : HMap) : INTEGER;
-BEGIN
-    RETURN Map.NumberOfElements(h);
-END NumberOfElements;
+    (* vObjectArray* = POINTER TO ARRAY OF VObject; *)
 
-PROCEDURE IsEmpty* (h : HMap) : BOOLEAN;
-BEGIN
-    RETURN Map.IsEmpty(h);
-END IsEmpty;
+    vObjectArray* = POINTER TO vObjectArrayDesc;
+vObjectArrayDesc* = RECORD;
+CreateVObjectArray : PROCEDURE (capacity: INTEGER): vObjectArray;
+capacity* : INTEGER;
+container* : POINTER TO ARRAY OF VObject;
+END;
 
-PROCEDURE Create* (capacity : INTEGER) : HMap;
-VAR 
-    h : HMap;
+       HashTable* = POINTER TO HashTableDesc;
+   HashTableDesc* = RECORD;
+       container* : hcontainer;
+          Create* : PROCEDURE (capacity: INTEGER): HashTable;
+NumberOfElements* : PROCEDURE (h: HashTable): INTEGER;
+         IsEmpty* : PROCEDURE (h: HashTable): BOOLEAN;
+          IsPrime : PROCEDURE (n: INTEGER): BOOLEAN;
+            Power : PROCEDURE (base, exponent : INTEGER): HUGEINT;
+        NextPrime : PROCEDURE (n: INTEGER): INTEGER;
+         HashCode : PROCEDURE (key: KObject): HUGEINT;
+     CompressHash : PROCEDURE (hash: HUGEINT; range: INTEGER): INTEGER;
+     HashFunction : PROCEDURE (key: KObject; range: INTEGER): INTEGER;
+             Get* : PROCEDURE (h: HashTable; key: KObject): VObject;
+    AddOrReplace* : PROCEDURE (h: HashTable; key: KObject; value: VObject);
+          Remove* : PROCEDURE (h: HashTable; key: KObject): VObject; 
+            Keys* : PROCEDURE (h: HashTable): kObjectArray; 
+          Values* : PROCEDURE (h: HashTable): vObjectArray;
+           Resize : PROCEDURE (h: HashTable);
+ numberOfElements : INTEGER;
+         capacity : INTEGER;
+END;
+
+PROCEDURE CreateKObjectArray (size: INTEGER): kObjectArray;
+VAR
+    k : kObjectArray;
+BEGIN
+    NEW(k);
+    k.capacity := size;
+    NEW(k.container, k.capacity);
+    RETURN k;
+END CreateKObjectArray;
+
+PROCEDURE CreateVObjectArray (size: INTEGER): vObjectArray;
+VAR
+    v : vObjectArray;
+BEGIN
+    NEW(v);
+    v.capacity := size;
+    NEW(v.container, v.capacity);
+    RETURN v;
+END CreateVObjectArray;
+
+PROCEDURE Create* (size : INTEGER) : HashTable;
+VAR
+    h : HashTable;
 BEGIN
     NEW(h);
-    h.container := DynamicArray.Create(capacity);
+    h.numberOfElements := 0;
+    h.capacity := size;
+    NEW(h.container, size);
     RETURN h;
 END Create;
 
-PROCEDURE Get* (h : HMap; key : KObject) : VObject;
-VAR     
-        i : INTEGER;
-     node : AObject;
-    entry : MapEntry;
+PROCEDURE NumberOfElements* (h : HashTable) : INTEGER;
 BEGIN
-    FOR i := 0 TO h.container.numberOfElements - 1 DO
-        node := DynamicArray.Get(h.container, i);
-        entry := node(Node).entry;
-        IF entry.key = key THEN
-            RETURN entry.value;
-        END;
-    END;
-    RETURN NIL;
-END Get;
+    RETURN h.numberOfElements;
+END NumberOfElements;
 
-PROCEDURE Remove* (h : HMap; key : KObject) : VObject;
-VAR     
-        i : INTEGER;
-     node : AObject;
-    entry : MapEntry;
+PROCEDURE IsEmpty* (h : HashTable) : BOOLEAN;
 BEGIN
-    FOR i := 0 TO h.container.numberOfElements - 1 DO
-        node := DynamicArray.Get(h.container, i);
-        entry := node(Node).entry;
-        IF entry.key = key THEN
-            node := DynamicArray.Delete(h.container, i);
-            RETURN entry.value;
-        END;
-    END;
-    RETURN NIL;
-END Remove;
-
-PROCEDURE Keys* (h : HMap) : DArray;
-VAR     
-        i : INTEGER;
-     node : AObject;
-    entry : MapEntry;
-     keys : DArray;
-BEGIN
-    keys := DynamicArray.Create(h.container.numberOfElements);
-    FOR i := 0 TO h.container.numberOfElements - 1 DO
-        node := DynamicArray.Get(h.container, i);
-        entry := node(Node).entry;
-        DynamicArray.Add(keys, entry.key);
-    END;
-    RETURN keys;
-END Keys;
-
-PROCEDURE Values* (h : HMap) : DArray;
-VAR     
-         i : INTEGER;  
-      node : AObject;
-     entry : MapEntry;
-    values : DArray;
-BEGIN
-    values := DynamicArray.Create(h.container.numberOfElements);
-    FOR i := 0 TO h.container.numberOfElements - 1 DO
-        node := DynamicArray.Get(h.container, i);
-        entry := node(Node).entry;
-        DynamicArray.Add(values, entry.value);
-    END;
-    RETURN values;
-END Values;
+    RETURN h.numberOfElements = 0;
+END IsEmpty;
 
 PROCEDURE Power (base, exponent : INTEGER) : HUGEINT;
 VAR 
@@ -177,6 +163,7 @@ BEGIN
     coefficient := 37;
     hash := 0;
     adr := SYSTEM.VAL(HUGEINT, SYSTEM.ADR(key));
+    Out.Ln;Out.String("adr: "); Out.Int(adr, 0); Out.Ln;
     WHILE adr > 0 DO
         digit := adr MOD 10;
         adr := adr DIV 10;
@@ -190,57 +177,220 @@ PROCEDURE CompressHash (hash: HUGEINT; range: INTEGER) : INTEGER;
 VAR 
             a : HUGEINT;
             b : HUGEINT;
+            temp : INTEGER;
         prime : HUGEINT;
        result : HUGEINT;
     returnVal : INTEGER;
 BEGIN
-    a := 11;
-    b := 17;
-    prime := NextPrime(range);
+    a := 7681;
+    b := 6983;
+    temp := SYSTEM.VAL(INTEGER,(range * a * b));
+    prime := NextPrime(temp);
     result := (a * hash + b);
-    result := result MOD prime;
+    (*result := result MOD prime;*)
+    result := result MOD range;
     returnVal := SYSTEM.VAL(INTEGER, result);
     RETURN returnVal;
 END CompressHash;
 
-PROCEDURE HashFunction (key: KObject; range: INTEGER) : INTEGER;
+PROCEDURE HashFunction* (key: KObject; range: INTEGER) : INTEGER;
 VAR 
          hash : HUGEINT;
     returnVal : INTEGER;
 BEGIN 
     hash := HashCode(key);
     returnVal := CompressHash(hash, range);
+    Out.String("------hash: "); Out.Int(returnVal, 0); Out.Ln;
     RETURN returnVal;
 END HashFunction;
 
-PROCEDURE AddOrReplace* (h : HMap; key : KObject; value : VObject);
-VAR     
+(*PROCEDURE Get* (h : HashTable; key : KObject) : VObject;
+VAR
     index : INTEGER;
-    aNode : AObject;
-     node : Node;
+     node : NObject;
+    entry : MapEntry;
+    aNode : Node;
+BEGIN
+    index := HashFunction(key, h.capacity);
+    node := h.container[index];
+    WHILE node # NIL DO
+        aNode := node(Node);
+        entry := aNode.entry;
+        IF entry.key = key THEN
+            RETURN entry.value;
+        END;
+        node := aNode.next;
+    END;
+    RETURN NIL;
+END Get;*)
+
+(*PROCEDURE Resize (h : HashTable);
+VAR
+         newSize : INTEGER;
+    newContainer : hcontainer;
+               i : INTEGER;
+           nobj1 : NObject;
+           nobj2 : NObject;
+           node1 : Node;
+           node2 : Node;
+           entry : MapEntry;
+        newIndex : INTEGER;
+BEGIN
+    Out.String("Entering Resize"); Out.Ln;
+    newSize := NextPrime(h.capacity * 2);
+    NEW(newContainer, newSize);
+    FOR i := 0 TO h.capacity - 1 DO
+        Out.String("printing i: "); Out.Int(i, 0); Out.Ln;
+        IF h.container[i] # NIL THEN
+            Out.Ln; Out.String("entered first IF statement"); Out.Ln;
+            nobj1 := h.container[i];
+            IF nobj1 # NIL THEN
+                Out.Ln; Out.String("entered second IF statement"); Out.Ln;
+                entry := nobj1(Node).entry;
+                newIndex := HashFunction(entry.key, newSize);
+                Out.String("printing newIndex: "); Out.Int(newIndex, 0); Out.Ln;
+                IF newContainer[newIndex] = NIL THEN
+                    NEW(node1);
+                    node1.entry := entry;
+                    node1.next := NIL;
+                    newContainer[newIndex] := node1;
+                ELSE
+                    nobj2 := newContainer[newIndex];
+                    NEW(node2);
+                    node2.entry := entry;
+                    node2.next := nobj2(Node);
+                    newContainer[newIndex] := node2;
+                END;
+            END;
+        END;
+    END;
+    h.container := newContainer;
+    h.capacity := newSize;
+END Resize;*)
+
+(*PROCEDURE AddOrReplace* (h : HashTable; key : KObject; value : VObject);
+VAR
+    index : INTEGER;
+     node : NObject;
+    entry : MapEntry;
+    aNode : Node;
+    size : INTEGER;
+BEGIN
+    Out.String("Entering AddOrReplace"); Out.Ln;
+    size := SYSTEM.VAL(INTEGER, h.capacity/2);
+    Out.String("printing size: ");Out.Int(size, 0); Out.Ln;
+    IF h.numberOfElements = size THEN
+        Out.String("Entered Resizing"); Out.Ln;
+        Resize(h);
+    END;
+    index := HashFunction(key, h.capacity);
+    Out.Ln; Out.String("printing index: "); Out.Int(index, 0); Out.Ln;
+    node := h.container[index];
+    IF node = NIL THEN
+        NEW(aNode);
+        NEW(entry);
+        entry.key := key;
+        entry.value := value;
+        aNode.entry := entry;
+        aNode.next := NIL;
+        h.container[index] := aNode;
+        INC(h.numberOfElements);
+        RETURN;
+    ELSE
+        WHILE node # NIL DO
+            aNode := node(Node);
+            entry := aNode.entry;
+            IF entry.key = key THEN
+                entry.value := value;
+                RETURN;
+            END;
+            node := aNode.next;
+        END;
+        NEW(aNode);
+        NEW(entry);
+        entry.key := key;
+        entry.value := value;
+        aNode.entry := entry;
+        node := h.container[index];
+        aNode.next := node(Node);
+        h.container[index] := aNode;
+        INC(h.numberOfElements);
+    END;
+    Out.String("Exiting AddOrReplace"); Out.Ln;
+END AddOrReplace;*)
+
+(*PROCEDURE Remove* (h : HashTable; key : KObject) : VObject;
+VAR
+    index : INTEGER;
+     node : NObject;
+    entry : MapEntry;
+    aNode : Node;
+BEGIN
+    index := HashFunction(key, h.capacity);
+    node := h.container[index];
+    IF node = NIL THEN
+        RETURN NIL;
+    ELSE
+        WHILE node # NIL DO
+            aNode := node(Node);
+            entry := aNode.entry;
+            IF entry.key = key THEN
+                h.container[index] := aNode.next;
+                DEC(h.numberOfElements);
+                RETURN entry.value;
+            END;
+            node := aNode.next;
+        END;
+        RETURN NIL;
+    END;
+END Remove;*)
+
+PROCEDURE Keys* (h : HashTable) : kObjectArray;
+VAR
+    keys : kObjectArray;
+    i : INTEGER;
+    j : INTEGER;
+    node : NObject;
+    aNode : Node;
     entry : MapEntry;
 BEGIN
-    index := HashFunction(key, h.container.capacity);
-    aNode := DynamicArray.Get(h.container, index);
-    IF aNode = NIL THEN
-        NEW(node);
-        NEW(entry);
-        entry.key := key;
-        entry.value := value;
-        node(Node).entry := entry;
-        DynamicArray.Add(h.container, node);
-    ELSE
-        WHILE aNode(Node).next # NIL DO
-            aNode := aNode(Node).next;
+    keys := CreateKObjectArray(h.numberOfElements);
+    j := 0;
+    FOR i := 0 TO h.capacity - 1 DO
+        node := h.container[i];
+        WHILE node # NIL DO
+            aNode := node(Node);
+            entry := aNode.entry;
+            keys.container[j] := entry.key;
+            j := j + 1;
+            node := aNode.next;
         END;
-        NEW(node);
-        NEW(entry);
-        entry.key := key;
-        entry.value := value;
-        node(Node).entry := entry;
-        aNode(Node).next := node;
     END;
-END AddOrReplace;
+    RETURN keys;
+END Keys;
+
+PROCEDURE Values* (h : HashTable) : vObjectArray;
+VAR
+    values : vObjectArray;
+    i : INTEGER;
+    j : INTEGER;
+    node : NObject;
+    aNode : Node;
+    entry : MapEntry;
+BEGIN
+    values := CreateVObjectArray(h.numberOfElements);
+    j := 0;
+    FOR i := 0 TO h.capacity - 1 DO
+        node := h.container[i];
+        WHILE node # NIL DO
+            aNode := node(Node);
+            entry := aNode.entry;
+            values.container[j] := entry.value;
+            j := j + 1;
+            node := aNode.next;
+        END;
+    END;
+    RETURN values;
+END Values;
 
 END HashMap.
-
