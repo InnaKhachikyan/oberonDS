@@ -1,0 +1,3 @@
+# Set the language to Oberon
+*.Mod linguist-language=Oberon
+*.mod linguist-language=Oberon
